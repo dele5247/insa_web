@@ -1,0 +1,47 @@
+    {% load static %}
+    {% load menu_tags %}
+    <!-- Content Wrapper. Contains page content -->
+    <div class="content-wrapper">
+        <div class="content-header">
+            <div class="container-fluid">
+                <div class="row mb-2">
+                    <div class="col-sm-6">
+                        <h1 class="m-0">{% block heading %}{% endblock %}</h1>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="content">
+            <div class="container-fluid">
+                {% block content %}{% endblock %}
+            </div>
+        </div>
+    </div>
+    <!-- /.content-wrapper -->
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="float-right d-none d-sm-inline">
+            Anything you want
+        </div>
+        <strong>Copyright &copy; 2024 <a href="https://">Dele5247</strong>
+        All rights reserved.
+    </footer>
+</div>
+
+<script src="{% static 'admin-lte/plugins/jquery/jquery.min.js' %}"></script>
+<script src="{% static 'admin-lte/plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'admin-lte/dist/js/adminlte.min.js' %}"></script>
+
+<script>
+    $(document).ready(function () {
+        // 현재 활성화된 메뉴를 찾아 부모 요소에 'menu-open' 클래스를 추가합니다.
+        var activeMenuItem = $('.nav-link.active');
+        if (activeMenuItem.length) {
+            var parentNavItem = activeMenuItem.closest('.has-treeview');
+            parentNavItem.addClass('menu-open');
+            parentNavItem.children('a.nav-link').addClass('active');
+        }
+    });
+</script>
+
