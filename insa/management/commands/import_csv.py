@@ -76,4 +76,3 @@ class Command(BaseCommand):
                     obj.save()
                     print(row[0],row[1])
         self.stdout.write(self.style.SUCCESS('Data imported successfully'))
-

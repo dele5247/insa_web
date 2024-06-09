@@ -18,5 +18,5 @@ RUN fc-cache -f -v
 ENV LANG=ko_KR.UTF-8 \
     LANGUAGE=ko_KR.UTF-8
 
-EXPOSE 8080
+EXPOSE 18080
 CMD ["python3", "manage.py", "runserver", "0.0.0.0:8080"]

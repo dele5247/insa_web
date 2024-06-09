@@ -79,6 +79,9 @@ class Department(models.Model):
 class Setting(models.Model):
     site_name = models.CharField(max_length=100)
     admin_email = models.EmailField()
-    ldap_host = models.CharField(max_length=100)
+    ad_server = models.CharField(max_length=255, null=True)
+    ad_user = models.CharField(max_length=255, null=True)
+    ad_password = models.CharField(max_length=255, null=True)
+    base_dn = models.CharField(max_length=255, null=True)
     def __str__(self):
         return self.site_name

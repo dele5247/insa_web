@@ -1,21 +1,26 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Employee, Department, Setting
 from .forms import EmployeeForm, DepartmentForm, SettingForm
+from django.contrib.auth.decorators import login_required
 
 
 sets=Setting.objects.all()
 
+@login_required
 def index(request):
     return render(request, 'index.html')
 
+@login_required
 def input_page(request):
     return render(request, 'input_page.html')
 
 
+@login_required
 def table_page(request):
     data = Employee.objects.all()
     return render(request, 'table_page.html', {'data': data, 'sets': sets})
 
+@login_required
 def employee_form(request, id=None):
     if id:
         employee = get_object_or_404(Employee, id=id)
@@ -32,10 +37,12 @@ def employee_form(request, id=None):
 
     return render(request, 'employee_form.html', {'form': form, 'sets': sets})
 
+@login_required
 def department_table_page(request):
     data = Department.objects.all()
     return render(request, 'department_table_page.html', {'data': data, 'sets': sets})
 
+@login_required
 def department_form(request, id=None):
     if id:
         department = get_object_or_404(Department, id=id)
@@ -52,6 +59,7 @@ def department_form(request, id=None):
 
     return render(request, 'department_form.html', {'form': form, 'sets': sets})
 
+@login_required
 def settings(request):
     setting = Setting.objects.first()
     if request.method == 'POST':
