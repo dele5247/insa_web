@@ -20,7 +20,6 @@ def table_page(request):
     data = Employee.objects.all()
     return render(request, 'table_page.html', {'data': data, 'sets': sets})
 
-@login_required
 def employee_form(request, id=None):
     if id:
         employee = get_object_or_404(Employee, id=id)
@@ -42,7 +41,6 @@ def department_table_page(request):
     data = Department.objects.all()
     return render(request, 'department_table_page.html', {'data': data, 'sets': sets})
 
-@login_required
 def department_form(request, id=None):
     if id:
         department = get_object_or_404(Department, id=id)
@@ -59,10 +57,12 @@ def department_form(request, id=None):
 
     return render(request, 'department_form.html', {'form': form, 'sets': sets})
 
-@login_required
 def settings(request):
     setting = Setting.objects.first()
+    if not setting:
+        setting = Setting.objects.create(site_name='Default Site', admin_email='admin@example.com')
     if request.method == 'POST':
+        print("a")
         form = SettingForm(request.POST, instance=setting)
         if form.is_valid():
             form.save()
