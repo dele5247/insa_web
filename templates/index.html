@@ -3,30 +3,25 @@
 {% block title %}유한양행 메인 페이지{% endblock %}
 
 {% block content %}
-<div class="content-header">
-    <div class="container-fluid">
-        <div class="row mb-2">
-            <div class="col-sm-6">
-                <h1 class="m-0">Dashboard</h1>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="content">
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">Welcome to the Dashboard</h3>
-                    </div>
-                    <div class="card-body">
-                        Main content goes here.
+    <div class="content-wrapper">
+        <section class="content">
+            <div class="container-fluid">
+                <h1>계정 현황</h1>
+                <div class="row">
+                    <!-- Employee Chart -->
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">계정 현황</h3>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="employeeChart"></canvas>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </section>
     </div>
-</div>
 {% endblock %}
 

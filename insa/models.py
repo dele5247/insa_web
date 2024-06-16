@@ -83,5 +83,14 @@ class Setting(models.Model):
     ad_user = models.CharField(max_length=255, null=True)
     ad_password = models.CharField(max_length=255, null=True)
     base_dn = models.CharField(max_length=255, null=True)
+    license_key = models.CharField(max_length=255, null=True)
     def __str__(self):
         return self.site_name
+
+
+class Log(models.Model):
+    no = models.AutoField(primary_key=True)
+    title = models.CharField(max_length=255, null=True)
+    desc = models.CharField(max_length=255, null=True)
+    create_date = models.DateField(auto_now_add=True)
+    modify_date = models.DateField(auto_now=True)

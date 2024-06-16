@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 import os
 from pathlib import Path
+from django.conf import settings
+import datetime
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,8 +22,20 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
+
+
+# 암호화 키 설정
+SECRET_KEY = 'dP4QqU4odG4YzjtJ4QJIwBb44VmIW4'
+
+# 라이센스 만료일 설정 (예: 2024년 12월 31일)
+#LICENSE_EXPIRY_DATE = os.environ.get('LICENSE_EXPIRY_DATE')
+LICENSE_EXPIRY_DATE = "2024-12-30"
+
+
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-*@v)oe$2wni-wm52she#(a*c0nb98ut=3t#vsxm#pgbhg7y8=w'
+
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -200,6 +214,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'insa.middleware.LicenseMiddleware',
 ]
 
 ROOT_URLCONF = 'app.urls'

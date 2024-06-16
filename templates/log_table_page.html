@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block title %}로그 {% endblock %}
+
+{% block content %}
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">로그</h1>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-header">
+			    <h3 class="card-title">로그</h3>
+                    </div>
+                    <div class="card-body">
+                        <table id="table" class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>No</th>
+                                    <th>구분</th>
+                                    <th>상세로그</th>
+                                    <th>생성 날짜</th>
+                                    <th>변경 날짜</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in data %}
+                                <tr>
+                                    <td>{{ item.no }}</td>
+                                    <td>{{ item.title }}</td>
+                                    <td>{{ item.desc }}</td>
+                                    <td>{{ item.create_date }}</td>
+                                    <td>{{ item.modify_date }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

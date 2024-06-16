@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}{% endblock %}</title>
+    {% load static %}
+    {% load menu_tags %}
+    <link rel="stylesheet" href="{% static 'admin-lte/plugins/fontawesome-free/css/all.min.css' %}">
+    <link rel="stylesheet" href="{% static 'admin-lte/dist/css/adminlte.min.css' %}">
+    <link rel="stylesheet" href="{% static 'admin-lte/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="hold-transition lockscreen">
+    <div class="lockscreen-wrapper">
+        <div class="lockscreen-name">라이센스키 입력</div>
+
+        <!-- START LOCK SCREEN ITEM -->
+        <div class="lockscreen-item">
+            <div class="lockscreen-image">
+		<img src="https://postfiles.pstatic.net/20160921_149/ppanppane_1474428957776Kk6Ao_PNG/%C0%AF%C7%D1%BE%E7%C7%E0_%B7%CE%B0%ED_%283%29.png?type=w966" alt="Logo" class="brand-image img-circle elevation-3">
+		<!--<img src="{% static 'admin-lte/img/.jpg' %}" alt="User Image">-->
+            </div>
+
+            <form class="lockscreen-credentials" method="post">
+                {% csrf_token %}
+                <div class="input-group">
+                    <input type="password" class="form-control" placeholder="license key" name="license_key">
+                    <div class="input-group-append">
+                        <button type="submit" class="btn"><i class="fas fa-arrow-right text-muted"></i></button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <!-- END LOCK SCREEN ITEM -->
+        <div class="lockscreen-footer text-center">
+            발급받은 라이센스 입력해주세요
+        </div>
+    </div>
+
+    <script src="{% static 'admin-lte/plugins/jquery/jquery.min.js' %}"></script>
+    <script src="{% static 'admin-lte/plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'admin-lte/dist/js/adminlte.min.js' %}"></script>
+    <script src="{% static 'admin-lte/plugins/datatables/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'admin-lte/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js' %}"></script>
+</body>
+</html>

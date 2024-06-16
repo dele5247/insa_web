@@ -62,7 +62,13 @@
                         <li class="nav-item">
                             <a href="{% url 'settings' %}" class="nav-link {% active request '^/settings' %}">
                                 <i class="far fa-circle nav-icon"></i>
-                                <p>AD Setting</p>
+				<p>연동 설정</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{% url 'log' %}" class="nav-link {% active request '^/log' %}">
+                                <i class="far fa-circle nav-icon"></i>
+				<p>로그</p>
                             </a>
                         </li>
                     </ul>

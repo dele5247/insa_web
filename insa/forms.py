@@ -25,3 +25,5 @@ class SettingForm(forms.ModelForm):
         widgets = {
             field.name: forms.TextInput(attrs={'class': 'form-control'}) for field in Setting._meta.fields
         }
+
+

@@ -10,5 +10,7 @@ urlpatterns = [
     path('departments/', views.department_table_page, name='department_table_page'),
     path('department_form/', views.department_form, name='department_form'),
     path('department_form/<int:id>/', views.department_form, name='department_edit_form'),
+    path('log/', views.log_table_page, name='log_table_page'),
+    path('lockscreen/', views.lockscreen, name='lockscreen'),
 
 ]

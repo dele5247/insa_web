@@ -4,6 +4,8 @@ services:
   web:
     build: .
     command: python manage.py runserver 0:8000
+    environment:
+      - LICENSE_EXPIRY_DATE="2024-12-31"
     ports:
       - "8000:8000"
     volumes:
