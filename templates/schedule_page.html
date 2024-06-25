@@ -18,62 +18,8 @@
             <div class="col-lg-12">
                 <div class="card">
                     <div class="card-header">
-	{% if schedule %}
-            <p><strong>Current Schedule:</strong></p>
-	    <p>User CSV 파일명: {{ schedule.csv_path }} || Group CSV 파일명: {{ schedule.group_csv_path }}</p>
-	    <p>배치시간: {{ schedule.hour }}시 {{ schedule.minute }}분</p>
-        {% else %}
-                <p>No schedule set.</p>
-        {% endif %}
-        <!-- Button to Open the Modal -->
-        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#scheduleModal">
-            Set Schedule
-        </button>
-        <!-- The Modal -->
-        <div class="modal" id="scheduleModal">
-            <div class="modal-dialog">
-                <div class="modal-content">
-
-                    <!-- Modal Header -->
-                    <div class="modal-header">
-                        <h4 class="modal-title">Set Schedule</h4>
-                        <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    </div>
-
-                    <!-- Modal body -->
-                    <div class="modal-body">
-                        <form id="scheduleForm" method="post" action="{% url 'schedule_import_csv' %}">
-                            {% csrf_token %}
-			    <input type="hidden" name="action" value="schedule">
-                            <div class="form-group">
-                                <label for="csv_path">User CSV Path:</label>
-                                <input type="text" class="form-control" id="csv_path" name="csv_path" value="{{ schedule.csv_path }}" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="csv_path">Group CSV Path:</label>
-                                <input type="text" class="form-control" id="group_csv_path" name="group_csv_path" value="{{ schedule.group_csv_path }}" required>
-
-                            <div class="form-group">
-                                <label for="hour">Hour (0-23):</label>
-                                <input type="number" class="form-control" id="hour" name="hour" min="0" max="23" value="{{ schedule.hour }}" required>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="minute">Minute (0-59):</label>
-                                <input type="number" class="form-control" id="minute" name="minute" min="0" max="59" value="{{ schedule.minute }}" required>
-                            </div>
-                        </form>
-                    </div>
-                    <!-- Modal footer -->
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" onclick="submitScheduleForm()">Save</button>
-                        <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-    </div>
+                        <h3 class="card-title">조직 정보</h3>
+                        <a href="{% url 'department_form' %}" class="btn btn-primary float-right">Add New</a>
                     </div>
                     <div class="card-body">
                         <table id="table" class="table table-bordered">
@@ -158,49 +104,4 @@
         </div>
     </div>
 </div>
-{% endblock %}
-{% block js %}
-<script>
-    $(document).ready(function() {
-        $('#table').DataTable({
-                "order": [[ 0, "asc" ]]  // 두 번째 열을 기준으로 내림차순 정렬
-        });
-    });
-</script>
-    <script>
-        function submitScheduleForm() {
-            document.getElementById('scheduleForm').submit();
-        }
-
-        document.getElementById('executeNowForm').addEventListener('submit', function(event) {
-            event.preventDefault();
-            document.getElementById('progressBarContainer').style.display = 'block';
-            document.getElementById('progressBar').style.width = '0%';
-            document.getElementById('progressMessage').innerText = 'CSV import is running...';
-
-            const formData = new FormData(this);
-
-            fetch('{% url "schedule_import_csv" %}', {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    document.getElementById('progressBar').style.width = '100%';
-                    document.getElementById('progressMessage').innerText = data.message;
-                } else {
-                    document.getElementById('progressBar').style.width = '100%';
-                    document.getElementById('progressMessage').innerText = data.message;
-                }
-            })
-            .catch(error => {
-                document.getElementById('progressBar').style.width = '100%';
-                document.getElementById('progressMessage').innerText = 'An error occurred: ' + error;
-            });
-        });
-    </script>
 {% endblock %}

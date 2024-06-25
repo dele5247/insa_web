@@ -28,7 +28,6 @@
                                     <th>구분</th>
                                     <th>상세로그</th>
                                     <th>생성 날짜</th>
-                                    <th>변경 날짜</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -37,8 +36,7 @@
                                     <td>{{ item.no }}</td>
                                     <td>{{ item.title }}</td>
                                     <td>{{ item.desc }}</td>
-                                    <td>{{ item.create_date }}</td>
-                                    <td>{{ item.modify_date }}</td>
+                                    <td>{{ item.create_date|date:"Y-m-d H:i:s" }}</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -50,3 +48,15 @@
     </div>
 </div>
 {% endblock %}
+{% block js %}
+<script>
+    $(document).ready(function() {
+        $('#table').DataTable({
+                "order": [[ 0, "desc" ]]  // 두 번째 열을 기준으로 내림차순 정렬
+        });
+    });
+</script>
+{% endblock %}
+
+
+

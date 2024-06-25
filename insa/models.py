@@ -92,5 +92,15 @@ class Log(models.Model):
     no = models.AutoField(primary_key=True)
     title = models.CharField(max_length=255, null=True)
     desc = models.CharField(max_length=255, null=True)
-    create_date = models.DateField(auto_now_add=True)
-    modify_date = models.DateField(auto_now=True)
+    create_date = models.DateTimeField(auto_now_add=True)
+    modify_date = models.DateTimeField(auto_now=True)
+
+class Schedule(models.Model):
+    csv_path = models.CharField(max_length=255)
+    group_csv_path = models.CharField(max_length=255,null=True)
+    hour = models.IntegerField()
+    minute = models.IntegerField()
+
+    def __str__(self):
+        return f'{self.csv_path} - {self.hour}:{self.minute}'
+

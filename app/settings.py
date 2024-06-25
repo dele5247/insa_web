@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 import os
 from pathlib import Path
-from django.conf import settings
+#from django.conf import settings
 import datetime
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -33,7 +33,7 @@ LICENSE_EXPIRY_DATE = "2024-12-30"
 
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-*@v)oe$2wni-wm52she#(a*c0nb98ut=3t#vsxm#pgbhg7y8=w'
+#SECRET_KEY = 'django-insecure-*@v)oe$2wni-wm52she#(a*c0nb98ut=3t#vsxm#pgbhg7y8=w'
 
 
 
@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     'crispy_forms',
     'insa',
     'django_extensions',
+    'django_apscheduler',
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
@@ -244,7 +245,7 @@ WSGI_APPLICATION = 'app.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': '/app/db/db.sqlite3',
     }
 }
 
@@ -297,3 +298,6 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'images')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
+
+APSCHEDULER_DATETIME_FORMAT = "N j, Y, f:s a"  # Default
+SCHEDULER_DEFAULT = True

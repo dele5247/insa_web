@@ -59,8 +59,7 @@
 <script src="{% static 'admin-lte/dist/js/adminlte.min.js' %}"></script>
 <script src="{% static 'admin-lte/plugins/datatables/jquery.dataTables.min.js' %}"></script>
 <script src="{% static 'admin-lte/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js' %}"></script>
-
-
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
 <script>
     $(document).ready(function () {
         // 현재 활성화된 메뉴를 찾아 부모 요소에 'menu-open' 클래스를 추가합니다.
@@ -71,35 +70,8 @@
             parentNavItem.children('a.nav-link').addClass('active');
         }
     });
-    $(document).ready(function() {
-        $('#table').DataTable();
-    });
 </script>
-<script>
-    document.addEventListener('DOMContentLoaded', (event) => {
-        const ctx = document.getElementById('employeeChart').getContext('2d');
-        const employeeChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: {{ departments|safe }},
-                datasets: [{
-                    label: 'Number of Employees',
-                    data: {{ counts|safe }},
-                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
-    });
-</script>
-
+{% block js %}
+{% endblock %}
 </body>
 </html>

@@ -12,7 +12,7 @@
                     <div class="col-md-12">
                         <div class="card">
                             <div class="card-header">
-                                <h3 class="card-title">계정 현황</h3>
+                                <h3 class="card-title">업데이트 예정</h3>
                             </div>
                             <div class="card-body">
                                 <canvas id="employeeChart"></canvas>
@@ -24,4 +24,30 @@
         </section>
     </div>
 {% endblock %}
-
+{% block javascript %}
+<script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+        const ctx = document.getElementById('employeeChart').getContext('2d');
+        const employeeChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: {{ departments|safe }},
+                datasets: [{
+                    label: 'Number of Employees',
+                    data: {{ counts|safe }},
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

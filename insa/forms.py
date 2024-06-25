@@ -25,5 +25,7 @@ class SettingForm(forms.ModelForm):
         widgets = {
             field.name: forms.TextInput(attrs={'class': 'form-control'}) for field in Setting._meta.fields
         }
-
+    def __init__(self, *args, **kwargs):
+        super(SettingForm, self).__init__(*args, **kwargs)
+        self.fields['site_name'].widget.attrs['disabled'] = True
 

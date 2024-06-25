@@ -31,7 +31,11 @@ class LicenseMiddleware:
     def check_license(self):
         current_date = datetime.date.today()
         #expiry_date = datetime.datetime.strptime(settings.LICENSE_EXPIRY_DATE, '%Y-%m-%d').date()
-        setting = Setting.objects.get(site_name='AD_SETTINGS')
+        try:
+            setting = Setting.objects.get(site_name='AD_SETTINGS')
+        except Setting.DoesNotExist:
+            setting = Setting.objects.create(site_name='AD_SETTINGS', admin_email='admin@example.com')
+            setting = Setting.objects.get(site_name='AD_SETTINGS')
         license_key = setting.license_key
         shift=3
 

@@ -60,13 +60,13 @@
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
-                            <a href="{% url 'settings' %}" class="nav-link {% active request '^/settings' %}">
+                            <a href="{% url 'settings_view' %}" class="nav-link {% active request '^/settings' %}">
                                 <i class="far fa-circle nav-icon"></i>
 				<p>연동 설정</p>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="{% url 'settings' %}" class="nav-link {% active request '^/log' %}">
+                            <a href="{% url 'log_table_page' %}" class="nav-link {% active request '^/log' %}">
                                 <i class="far fa-circle nav-icon"></i>
 				<p>로그</p>
                             </a>

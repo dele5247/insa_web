@@ -3,7 +3,6 @@ FROM python:3.9-alpine
 WORKDIR /app
 COPY . /app
 RUN apk add bash udev ttf-freefont
-RUN pip install -r requirements.txt
 RUN apk --no-cache add tzdata && \
         cp /usr/share/zoneinfo/Asia/Seoul /etc/localtime && \
         echo "Asia/Seoul" > /etc/timezone
@@ -17,6 +16,7 @@ RUN fc-cache -f -v
 # Set the lang
 ENV LANG=ko_KR.UTF-8 \
     LANGUAGE=ko_KR.UTF-8
+RUN pip install -r requirements.txt
 
 EXPOSE 18080
 CMD ["python3", "manage.py", "runserver", "0.0.0.0:8080"]
