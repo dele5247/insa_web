@@ -16,50 +16,32 @@ class Command(BaseCommand):
         csv_file = kwargs['csv_file']
         csv_file_path = os.path.join(settings.BASE_DIR, csv_file)
 
+        self.stdout.write(self.style.SUCCESS('Data imported successfully'))
         # Check if the CSV file exists
         if not os.path.isfile(csv_file_path):
             self.stdout.write(self.style.ERROR(f'CSV file "{csv_file}" does not exist'))
             return
 
-        # Open the CSV file and iterate over its rows
-        with open(csv_file_path, 'r', encoding='utf-8', newline='') as file:
-            reader = csv.reader(file, delimiter=',')
-            last_count=len(list(reader))
-            file.seek(0)
-            Department.objects.all().delete()
-            for index,row in enumerate(reader):
-                if index < last_count-1:
-                    # Assuming your CSV has columns 'field1', 'field2', 'field3'...
-                    # Modify this part according to your CSV structure and Django model
-                    obj = Department(
-                        dept_id=row[0],
-                        dept_code=row[1],
-                        dept_name=row[2],
-                        dept_abrv=row[3],
-                        mana_tp=row[4],
-                        tax_biz=row[5],
-                        zip_code=row[6],
-                        addr1=row[7],
-                        addr2=row[8],
-                        priox=row[9],
-                        dept_stat=row[10],
-                        up_dept_code=row[11],
-                        sum_dept_code=row[12],
-                        cur_dept_code=row[13],
-                        buseo_tp=row[14],
-                        dso_code=row[15],
-                        org_cd=row[16],
-                        insert_date=row[17],
-                        insert_user=row[18],
-                        update_date=row[19],
-                        update_user=row[20],
-                        acct_tp=row[21],
-                        st_tp=row[22],
-                        st_nm=row[23],
-                        begda=row[24],
-                        endda=row[25],
-                        # Add more fields as needed
-                    )
-                    obj.save()
-                    print(row[0],row[1])
-        self.stdout.write(self.style.SUCCESS('Data imported successfully'))
+        # Try opening the CSV file with different encodings
+        encodings = ['utf-8', 'latin1', 'cp1252']
+        for encoding in encodings:
+            try:
+                with open(csv_file_path, 'r', encoding='euc-kr', newline='') as file:
+                    reader = csv.reader(file, delimiter=',')
+                    headers = next(reader)  # Skip the header row
+                    Department.objects.all().delete()  # Clear existing data
+                    for row in reader:
+
+                        obj = Department(
+                            dept_id=row[0],
+                            dept_name=row[1],
+                            ou_name=row[2],
+                            acct_tp=row[3],
+                        )
+                        obj.save()
+                        print(f'Imported: {row[1]} ({row[0]})')
+                self.stdout.write(self.style.SUCCESS(f'Data imported successfully using {encoding} encoding'))
+                break
+            except UnicodeDecodeError:
+                self.stdout.write(self.style.WARNING(f'Failed to read CSV file with {encoding} encoding'))
+

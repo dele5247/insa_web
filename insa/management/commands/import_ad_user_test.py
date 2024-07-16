@@ -61,16 +61,17 @@ def add_users_to_group(conn, ou_dn, group_dn):
     """
     conn.search(ou_dn, '(objectClass=user)', attributes=['distinguishedName'])
     user_dns = [entry.distinguishedName.value for entry in conn.entries]
+
     for user_dn in user_dns:
         # Check if the user is already a member of the group
         conn.search(group_dn, '(member={user_dn})', attributes=['member'])
         if not conn.entries:
             # User is not a member of the group, add them
             conn.modify(group_dn, {'member': [(MODIFY_ADD, [user_dn])]})
-            #if conn.result['description'] == 'success':
-            #    print(f'Successfully added {user_dn} to group: {group_dn}')
-            #else:
-            #    pass
+            if conn.result['description'] == 'success':
+                print(f'Successfully added {user_dn} to group: {group_dn}')
+            else:
+                pass
                 #print(f'Failed to add {user_dn} to group: {group_dn}: {conn.result}')
 
 def remove_user_from_other_groups(conn, base_dn,user_dn, current_group_dn):
@@ -81,12 +82,13 @@ def remove_user_from_other_groups(conn, base_dn,user_dn, current_group_dn):
     group_dns = [entry.distinguishedName.value for entry in conn.entries if entry.distinguishedName.value != current_group_dn]
 
     for group_dn in group_dns:
+        print(user_dn, group_dn)
         conn.modify(group_dn, {'member': [(MODIFY_DELETE, [user_dn])]})
-        #if conn.result['description'] == 'success':
-        #    print(f'Successfully removed {user_dn} from group: {group_dn}')
-        #else:
-        ##    #print(f'Failed to remove {user_dn} from group: {group_dn}: {conn.result}')
-        #    pass
+        if conn.result['description'] == 'success':
+            print(f'Successfully removed {user_dn} from group: {group_dn}')
+        else:
+            #print(f'Failed to remove {user_dn} from group: {group_dn}: {conn.result}')
+            pass
 
 
 def build_ou_dn(department, base_dn):
@@ -114,6 +116,9 @@ def build_ou_dn(department, base_dn):
 class Command(BaseCommand):
     help = 'Import data from DB and add/update users to AD server'
 
+    def add_arguments(self, parser):
+        parser.add_argument('user_id', type=str, help='user id')
+
     def handle(self, *args, **kwargs):
         # Setting 모델에서 AD 서버 정보를 가져옴
         ad_settings = Setting.objects.get(site_name='AD_SETTINGS')
@@ -127,8 +132,7 @@ class Command(BaseCommand):
         conn = Connection(server, user=ad_user, password=ad_password, auto_bind=True)
 
         # Get all employees from the database
-        #employees = Employee.objects.filter(sAMAccountName='021220')
-        employees = Employee.objects.all()
+        employees = Employee.objects.filter(sAMAccountName=kwargs['user_id'])
 
         for employee in employees:
             # Get the department information
@@ -214,10 +218,8 @@ class Command(BaseCommand):
             try:
                 remove_user_from_other_groups(conn, base_dn,user_dn, f"CN={department.dept_name},{ou_dn}")
 
-            except:
-                pass 
-            #except Exception as e:
-            #    self.stdout.write(self.style.ERROR(f'Error removing {department.dept_name} to AD: {str(e)}'))
+            except Exception as e:
+                self.stdout.write(self.style.ERROR(f'Error removing {department.dept_name} to AD: {str(e)}'))
 
 
         conn.unbind()

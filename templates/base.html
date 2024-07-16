@@ -24,7 +24,7 @@
         <ul class="navbar-nav ml-auto">
             <!-- License Information -->
             <li class="nav-item">
-		    <span class="nav-link"><b>{{ license_expiry_date }}</b></span>
+		    <span class="nav-link"><button type="button" class="btn btn-block btn-danger btn-xs"><b>{{ license_expiry_date }}</b></button></span>
             </li>
             <!-- User Dropdown Menu -->
             <li class="nav-item dropdown">
@@ -60,6 +60,7 @@
 <script src="{% static 'admin-lte/plugins/datatables/jquery.dataTables.min.js' %}"></script>
 <script src="{% static 'admin-lte/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js' %}"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+<script src="{% static 'admin-lte/plugins/chart.js/Chart.min.js' %}"></script>
 <script>
     $(document).ready(function () {
         // 현재 활성화된 메뉴를 찾아 부모 요소에 'menu-open' 클래스를 추가합니다.

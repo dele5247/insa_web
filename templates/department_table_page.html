@@ -80,75 +80,19 @@
                             <thead>
                                 <tr>
                                     <th>ID</th>
-                                    <th>Dept Code</th>
                                     <th>Dept Name</th>
-                                    <th>Dept Abbreviation</th>
-                                    <th>Priox</th>
-                                    <th>Org CD</th>
-                                    <th>Insert Date</th>
-                                    <th>Insert User</th>
-                                    <th>Update Date</th>
-                                    <th>Update User</th>
-                                    <th>Acct TP</th>
-                                    <th>Begda</th>
-                                    <th>Endda</th>
-                                    <th>Actions</th>
+                                    <th>OU명</th>
+                                    <th>상위부서</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for item in data %}
                                 <tr>
                                     <td>{{ item.dept_id }}</td>
-                                    <td>{{ item.dept_code }}</td>
                                     <td>{{ item.dept_name }}</td>
-                                    <td>{{ item.dept_abrv }}</td>
-                                    <td>{{ item.priox }}</td>
-                                    <td>{{ item.org_cd }}</td>
-                                    <td>{{ item.insert_date }}</td>
-                                    <td>{{ item.insert_user }}</td>
-                                    <td>{{ item.update_date }}</td>
-                                    <td>{{ item.update_user }}</td>
+                                    <td>{{ item.ou_name }}</td>
                                     <td>{{ item.acct_tp }}</td>
-                                    <td>{{ item.begda }}</td>
-                                    <td>{{ item.endda }}</td>
-                                    <td>
-                                        <button type="button" class="btn btn-sm btn-info" data-toggle="modal" data-target="#departmentModal{{ item.id }}">View Details</button>
-                                        <a href="{% url 'department_edit_form' item.id %}" class="btn btn-sm btn-warning">Edit</a>
-                                    </td>
                                 </tr>
-                                <div class="modal fade" id="departmentModal{{ item.id }}" tabindex="-1" role="dialog" aria-labelledby="departmentModalLabel{{ item.id }}" aria-hidden="true">
-                                    <div class="modal-dialog" role="document">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title" id="departmentModalLabel{{ item.id }}">Department Details</h5>
-                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                    <span aria-hidden="true">&times;</span>
-                                                </button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <p><strong>Dept Abbreviation:</strong> {{ item.dept_abrv }}</p>
-                                                <p><strong>Dept Stat:</strong> {{ item.dept_stat }}</p>
-                                                <p><strong>Mana TP:</strong> {{ item.mana_tp }}</p>
-                                                <p><strong>Tax Biz:</strong> {{ item.tax_biz }}</p>
-                                                <p><strong>Zip Code:</strong> {{ item.zip_code }}</p>
-                                                <p><strong>Addr1:</strong> {{ item.addr1 }}</p>
-                                                <p><strong>Addr2:</strong> {{ item.addr2 }}</p>
-                                                <p><strong>Up Dept Code:</strong> {{ item.up_dept_code }}</p>
-                                                <p><strong>Sum Dept Code:</strong> {{ item.sum_dept_code }}</p>
-                                                <p><strong>Cur Dept Code:</strong> {{ item.cur_dept_code }}</p>
-                                                <p><strong>Buseo TP:</strong> {{ item.buseo_tp }}</p>
-                                                <p><strong>DSO Code:</strong> {{ item.dso_code }}</p>
-                                                <p><strong>ST TP:</strong> {{ item.st_tp }}</p>
-                                                <p><strong>ST NM:</strong> {{ item.st_nm }}</p>
-
-                                                <!-- Add other details here -->
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
                                 {% endfor %}
                             </tbody>
                         </table>

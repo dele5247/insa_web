@@ -27,5 +27,23 @@ class SettingForm(forms.ModelForm):
         }
     def __init__(self, *args, **kwargs):
         super(SettingForm, self).__init__(*args, **kwargs)
-        self.fields['site_name'].widget.attrs['disabled'] = True
+        if 'ad_password' in self.fields:
+            self.fields['ad_password'].widget = forms.PasswordInput(attrs={'class': 'form-control'})
+            self.fields['ad_password'].required = False
+        if 'ftp_password' in self.fields:
+            self.fields['ftp_password'].widget = forms.PasswordInput(attrs={'class': 'form-control'})
+            self.fields['ftp_password'].required = False
+
+    def clean_ad_password(self):
+        # 비밀번호 필드가 비어 있는 경우 기존 비밀번호를 유지
+        ad_password = self.cleaned_data.get('ad_password')
+        if not ad_password and self.instance.pk:
+            return self.instance.ad_password
+        return ad_password
+    def clean_ftp_password(self):
+        # 비밀번호 필드가 비어 있는 경우 기존 비밀번호를 유지
+        ftp_password = self.cleaned_data.get('ftp_password')
+        if not ftp_password and self.instance.pk:
+            return self.instance.ftp_password
+        return ftp_password
 

@@ -14,6 +14,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 from django_apscheduler.jobstores import DjangoJobStore, register_events, register_job
 import logging
+from django.core.cache import cache
 logging.basicConfig()
 logging.getLogger('apscheduler').setLevel(logging.DEBUG)
 
@@ -28,19 +29,43 @@ executing = False
 
 @login_required
 def index(request):
-    # Employee 데이터를 집계하여 차트 데이터로 변환
-    department_counts = Employee.objects.values('work_department').annotate(count=Count('id')).order_by('work_department')
+    # 직원 통계
+    total_employees = Employee.objects.count()
+    active_employees = Employee.objects.filter(employment_status='재직').count()
+    total_department = Department.objects.all().count()
 
-    departments = list(department_counts.values_list('work_department', flat=True))
-    counts = list(department_counts.values_list('count', flat=True))
+    # 부서별 직원 수
+    department_counts = Employee.objects.values('group').annotate(count=Count('id'))
+    departments = Employee.objects.values('department').annotate(total=Count('id')).order_by('-total')
+
+    # 차트 데이터를 생성
+    labels = [dept['department'] for dept in departments]
+    data = [dept['total'] for dept in departments]
 
     context = {
-        'departments': departments,
-        'counts': counts,
-        'sets': get_settings(),
+        'total_employees': total_employees,
+        'active_employees': active_employees,
+        'total_department': total_department,
+        'department_counts': department_counts,
+        'labels': labels,
+        'data': data,
         'license_expiry_date': check_license(),
     }
     return render(request, 'index.html', context)
+
+
+    ## Employee 데이터를 집계하여 차트 데이터로 변환
+    #department_counts = Employee.objects.values('work_department').annotate(count=Count('id')).order_by('work_department')
+
+    #departments = list(department_counts.values_list('work_department', flat=True))
+    #counts = list(department_counts.values_list('count', flat=True))
+    #context = {
+    #    'departments': departments,
+    #    'counts': counts,
+    #    'sets': get_settings(),
+    #    'license_expiry_date': check_license(),
+    #}
+    #return render(request, 'index.html', context)
 
 @login_required
 def input_page(request):
@@ -48,7 +73,11 @@ def input_page(request):
 
 @login_required
 def table_page(request):
-    data = Employee.objects.all()
+    cache_key = 'employee_list'
+    cache_time = 600  # 시간(초) 단위로 캐시 유지 시간 설정
+    data = cache.get(cache_key)
+    if not data:
+        data = Employee.objects.all()
     schedule = Schedule.objects.first()
     jobs = scheduler.get_jobs()
     return render(request, 'table_page.html', {'data': data, 'sets': get_settings(), 'schedule': schedule, 'jobs': jobs,'license_expiry_date': check_license()})
@@ -76,7 +105,11 @@ def log_table_page(request):
 
 @login_required
 def department_table_page(request):
-    data = Department.objects.all()
+    cache_key = 'department_list'
+    cache_time = 600  # 시간(초) 단위로 캐시 유지 시간 설정
+    data = cache.get(cache_key)
+    if not data:
+        data = Department.objects.all()
     schedule = Schedule.objects.first()
     return render(request, 'department_table_page.html', {'data': data, 'sets': get_settings(), 'schedule': schedule, 'license_expiry_date': check_license()})
 
@@ -97,20 +130,20 @@ def department_form(request, id=None):
     return render(request, 'department_form.html', {'form': form, 'sets': get_settings(), 'license_expiry_date': check_license()})
 
 def settings_view(request):
-    setting = Setting.objects.first()
+    setting = Setting.objects.filter(site_name='AD_SETTINGS').first()
     if not setting:
         setting = Setting.objects.create(site_name='AD_SETTINGS', admin_email='admin@example.com')
     if request.method == 'POST':
         form = SettingForm(request.POST, instance=setting)
         if form.is_valid():
             form.save()
-            return redirect('settings')
+            return redirect('settings_view')
     else:
         form = SettingForm(instance=setting)
     return render(request, 'settings.html', {'form': form, 'sets': get_settings(), 'license_expiry_date': check_license()})
 
 def lockscreen(request):
-    setting = Setting.objects.first()
+    setting = Setting.objects.filter(site_name='AD_SETTINGS').first()
     if not setting:
         setting = Setting.objects.create(site_name='AD_SETTINGS', admin_email='admin@example.com')
     if request.method == 'POST':
@@ -172,6 +205,16 @@ def execute_import_csv(csv_path,group_csv_path):
         return
 
     executing = True
+
+    print("############# ftp sync Start ###############")
+    try:
+        call_command('ftp_file_sync')
+        log_schedule_activity('File Sync Successful', f'Fie Sync completed successfully.')
+    except Exception as e:
+        log_schedule_activity('File Sync Failed', f'File Sync failed with error: {str(e)}')
+    finally:
+        executing = False
+
     print("############# import_csv Start ###############")
     try:
         call_command('import_csv', csv_path)
@@ -193,6 +236,17 @@ def execute_import_csv(csv_path,group_csv_path):
         executing = False
         # 데이터베이스 연결 닫기
         connection.close()
+    
+    print("############# import_ad_users Start ###############")
+    try:
+        call_command('import_ad_users')
+        log_schedule_activity('AD Sync', f'AD Sync completed successfully.')
+    except Exception as e:
+        log_schedule_activity('AD Sync', f'AD Sync failed with error: {str(e)}')
+    finally:
+        executing = False
+
+
 
 def run_import_csv_thread(csv_path,group_csv_path):
     thread = threading.Thread(target=execute_import_csv, args=(csv_path,group_csv_path))
@@ -204,6 +258,7 @@ def schedule_import_csv(request):
     if request.method == 'POST':
         action = request.POST.get('action')
         if action == 'schedule':
+
             csv_path = request.POST.get('csv_path')
             group_csv_path = request.POST.get('group_csv_path')
             hour = request.POST.get('hour')
@@ -231,7 +286,22 @@ def schedule_import_csv(request):
                         minute=minute
                     )
             # 스케줄 작업 추가
-            scheduler.add_job(run_import_csv_thread, CronTrigger(hour=schedule.hour, minute=schedule.minute), args=[schedule.csv_path,schedule.group_csv_path])
+            today_date = datetime.datetime.now()
+            if "%Y" in schedule.csv_path and "%m" in schedule.csv_path and "%d" in schedule.csv_path:
+                formatted_csv_path = today_date.strftime(schedule.csv_path)
+            else:
+               # 포함되어 있지 않으면 원래 경로 사용
+                formatted_csv_path = schedule.csv_path
+
+            if "%Y" in schedule.group_csv_path and "%m" in schedule.group_csv_path and "%d" in schedule.group_csv_path:
+                formatted_group_csv_path = today_date.strftime(schedule.group_csv_path)
+            else:
+               # 포함되어 있지 않으면 원래 경로 사용
+                formatted_group_csv_path = schedule.group_csv_path
+
+
+            print(formatted_csv_path,formatted_group_csv_path)
+            scheduler.add_job(run_import_csv_thread, CronTrigger(hour=schedule.hour, minute=schedule.minute), args=[formatted_csv_path,formatted_group_csv_path])
             register_events(scheduler)
            # return JsonResponse({
            #     'status': 'success',

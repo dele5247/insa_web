@@ -4,13 +4,13 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 from insa.models import Employee, Department, Setting
 import ldap3
-from ldap3 import Server, Connection, ALL, MODIFY_REPLACE, MODIFY_ADD, MODIFY_DELETE
+from ldap3 import Server, Connection, ALL, MODIFY_REPLACE
 
 def create_ou_if_not_exists(conn, ou_dn, base_dn):
     """
     Create an OU if it does not exist. Create parent OUs recursively.
     """
-    base_count = base_dn.count(',')
+    base_count=base_dn.count(',')
     ou_parts = ou_dn.split(',')
     ou_parts.reverse()  # OU를 역순으로 조정하여 가장 하위 OU부터 처리
     for i in range(len(ou_parts)):
@@ -35,63 +35,9 @@ def create_ou_if_not_exists(conn, ou_dn, base_dn):
                     return False
     return True
 
-def create_group_if_not_exists(conn, group_name, ou_dn):
-    """
-    Create a security group if it does not exist in the given OU and add users in the OU to the group.
-    """
-    group_dn = f"CN={group_name},{ou_dn}"
-    conn.search(group_dn, '(objectClass=group)')
-    if not conn.entries:
-        conn.add(group_dn, 'group', {
-            'sAMAccountName': group_name,
-            'groupType': -2147483646,  # Security group
-            'description': f'Security group for {group_name}'
-        })
-        if conn.result['description'] == 'success':
-            print(f'Successfully created group: {group_name} at {group_dn}')
-            add_users_to_group(conn, ou_dn, group_dn)
-        else:
-            print(f'Failed to create group: {group_name} at {group_dn}: {conn.result}')
-    else:
-        add_users_to_group(conn, ou_dn, group_dn)
-
-def add_users_to_group(conn, ou_dn, group_dn):
-    """
-    Add all users in the given OU to the specified group if they are not already members.
-    """
-    conn.search(ou_dn, '(objectClass=user)', attributes=['distinguishedName'])
-    user_dns = [entry.distinguishedName.value for entry in conn.entries]
-    for user_dn in user_dns:
-        # Check if the user is already a member of the group
-        conn.search(group_dn, '(member={user_dn})', attributes=['member'])
-        if not conn.entries:
-            # User is not a member of the group, add them
-            conn.modify(group_dn, {'member': [(MODIFY_ADD, [user_dn])]})
-            #if conn.result['description'] == 'success':
-            #    print(f'Successfully added {user_dn} to group: {group_dn}')
-            #else:
-            #    pass
-                #print(f'Failed to add {user_dn} to group: {group_dn}: {conn.result}')
-
-def remove_user_from_other_groups(conn, base_dn,user_dn, current_group_dn):
-    """
-    Remove the user from all other groups except the current one.
-    """
-    conn.search(base_dn, f'(member={user_dn})', attributes=['distinguishedName'])
-    group_dns = [entry.distinguishedName.value for entry in conn.entries if entry.distinguishedName.value != current_group_dn]
-
-    for group_dn in group_dns:
-        conn.modify(group_dn, {'member': [(MODIFY_DELETE, [user_dn])]})
-        #if conn.result['description'] == 'success':
-        #    print(f'Successfully removed {user_dn} from group: {group_dn}')
-        #else:
-        ##    #print(f'Failed to remove {user_dn} from group: {group_dn}: {conn.result}')
-        #    pass
-
-
 def build_ou_dn(department, base_dn):
     """
-    Build the OU DN for the given department, including parent OUs.
+    Build the OU DN for the given department, including parent OUs
     """
     ou_parts = []
     while department:
@@ -114,6 +60,9 @@ def build_ou_dn(department, base_dn):
 class Command(BaseCommand):
     help = 'Import data from DB and add/update users to AD server'
 
+    def add_arguments(self, parser):
+        parser.add_argument('user_id', type=str, help='user id')
+
     def handle(self, *args, **kwargs):
         # Setting 모델에서 AD 서버 정보를 가져옴
         ad_settings = Setting.objects.get(site_name='AD_SETTINGS')
@@ -127,8 +76,7 @@ class Command(BaseCommand):
         conn = Connection(server, user=ad_user, password=ad_password, auto_bind=True)
 
         # Get all employees from the database
-        #employees = Employee.objects.filter(sAMAccountName='021220')
-        employees = Employee.objects.all()
+        employees = Employee.objects.filter(sAMAccountName=kwargs['user_id'])
 
         for employee in employees:
             # Get the department information
@@ -144,15 +92,20 @@ class Command(BaseCommand):
                 self.stdout.write(self.style.ERROR(f'Failed to create the OU structure for {employee.display_name}. Skipping...'))
                 continue
 
+            #user_dn = f"CN={employee.display_name},{ou_dn}"
             user_dn = f"CN={employee.sAMAccountName},{ou_dn}"
+            user_principal_name = employee.upn
+            if "@" not in user_principal_name:
+                self.stdout.write(self.style.ERROR(f'Invalid userPrincipalName for {employee.sAMAccountName}. Skipping...'))
+                continue
             attributes = {
                 'givenName': employee.first_name,
                 'sn': employee.last_name,
                 'displayName': employee.display_name,
                 'description': employee.description,
                 'employeeID': employee.employee_id,
-                'userPrincipalName': employee.upn,  # Adjust domain as needed
-                'mail': employee.email or employee.upn,
+                'userPrincipalName': user_principal_name,
+                'mail': employee.email or user_principal_name,
                 'sAMAccountName': employee.sAMAccountName,
                 'userAccountControl': '544',  # 544 is for normal account, enable account
                 'objectClass': ['top', 'person', 'organizationalPerson', 'user']
@@ -168,6 +121,7 @@ class Command(BaseCommand):
                     # User exists but is in the wrong OU, move the user
                     self.stdout.write(self.style.SUCCESS(f'User {employee.sAMAccountName} exists but in the wrong OU. Moving...'))
                     try:
+                        #conn.modify_dn(current_user_dn, f"CN={employee.display_name}", new_superior=ou_dn)
                         conn.modify_dn(current_user_dn, f"CN={employee.sAMAccountName}", new_superior=ou_dn)
                         conn.search(root_dn, f'(sAMAccountName={employee.sAMAccountName})', attributes=['distinguishedName'])
                         current_user_dn = conn.entries[0].distinguishedName.value
@@ -207,18 +161,6 @@ class Command(BaseCommand):
                         self.stdout.write(self.style.ERROR(f'Failed to add {employee.sAMAccountName} to AD: {conn.result}'))
                 except Exception as e:
                     self.stdout.write(self.style.ERROR(f'Error adding {employee.sAMAccountName} to AD: {str(e)}'))
-
-            # Create the security group if it does not exist and add the user to the group
-            create_group_if_not_exists(conn, department.dept_name, ou_dn)
-            # Remove user from other groups if necessary
-            try:
-                remove_user_from_other_groups(conn, base_dn,user_dn, f"CN={department.dept_name},{ou_dn}")
-
-            except:
-                pass 
-            #except Exception as e:
-            #    self.stdout.write(self.style.ERROR(f'Error removing {department.dept_name} to AD: {str(e)}'))
-
 
         conn.unbind()
 
